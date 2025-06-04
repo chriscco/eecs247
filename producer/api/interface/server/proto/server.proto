@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = ".;proto";
+
+package proto; 
+
+service WordCount {
+    rpc WordCount(WordCountRequest) returns (WordCountResponse) {}
+}
+
+message WordCountRequest {
+    string RequestMessage = 1; 
+}
+message WordCountResponse {
+    message WordCountResult {
+        string word = 1; 
+        int32 count = 2;  
+    }
+    repeated WordCountResult ct = 1; 
+}

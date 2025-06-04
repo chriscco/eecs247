@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_package = "WordCountService";
+option java_outer_classname = "ServerProto";
+
+package wordCount;
+
+service WordCount {
+  rpc WordCount(WordCountRequest) returns (WordCountResponse) {}
+}
+
+message WordCountRequest {
+  string requestMessage = 1;
+}
+
+message WordCountResponse {
+  message WordCountResult {
+    string word = 1;
+    int32 count = 2;
+  }
+  repeated WordCountResult ct = 1;
+}

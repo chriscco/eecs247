@@ -1,0 +1,9 @@
+server:
+    port:  8080 
+    level: debug 
+
+redis: 
+    host: 127.0.0.1 
+    port: 6379 
+    password: 
+    data_base: 1
