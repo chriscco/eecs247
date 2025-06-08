@@ -1,17 +1,16 @@
 package server;
 
-import WordCountService.ServerProto;
-import WordCountService.WordCountGrpc;
-import io.grpc.stub.StreamObserver;
-
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import WordCountService.ServerProto;
+import WordCountService.WordCountGrpc;
+import io.grpc.stub.StreamObserver;
 
 public class WordCountServiceImpl extends WordCountGrpc.WordCountImplBase {
     private final ConcurrentHashMap<String, AtomicInteger> result = new ConcurrentHashMap<>();
@@ -85,15 +84,5 @@ public class WordCountServiceImpl extends WordCountGrpc.WordCountImplBase {
             hexString.append(String.format("%02x", b));
         }
         return hexString.toString();
-    }
-
-    private Map<String, AtomicInteger> getMap() {
-        return Collections.unmodifiableMap(result);
-    }
-
-    private void printMap() {
-        for (Map.Entry<String, AtomicInteger> entry : getMap().entrySet()) {
-            System.out.println("Key: " + entry.getKey() + " Value: " + entry.getValue());
-        }
     }
 }
