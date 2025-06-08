@@ -6,7 +6,7 @@ option java_outer_classname = "ServerProto";
 package wordCount;
 
 service WordCount {
-  rpc WordCount(WordCountRequest) returns (WordCountResponse) {}
+  rpc WordCount(stream WordCountRequest) returns (stream WordCountResponse) {}
 }
 
 message WordCountRequest {
@@ -19,4 +19,5 @@ message WordCountResponse {
     int32 count = 2;
   }
   repeated WordCountResult ct = 1;
+  string Key = 2;
 }

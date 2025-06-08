@@ -12,6 +12,7 @@
   </dependencyManagement>
 
   <dependencies>
+<<<<<<< HEAD
     <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-sql -->
     <dependency>
       <groupId>org.apache.spark</groupId>
@@ -38,6 +39,8 @@
       <artifactId>kafka-clients</artifactId>
       <version>3.7.1</version>
     </dependency>
+=======
+>>>>>>> a169a46 (task completed)
 
     <dependency>
       <groupId>org.slf4j</groupId>
