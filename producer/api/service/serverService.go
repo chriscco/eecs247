@@ -1,62 +1,114 @@
-package service 
+package service
 
 import (
+	"context"
 	"log"
-	"github.com/IBM/sarama"
+	"strconv"
+	"sync"
+	"time"
+	"wordCountServer/api/interface/client"
+	"wordCountServer/common/utils"
+	"wordCountServer/global"
 )
 
+// ServerImpl
 type ServerImpl struct {} 
+
+// NewServerImpl 
+//	@return ServerImpl 
 func NewServerImpl() ServerImpl {
 	return ServerImpl{}  
 }
 
 const (
-	Topic = "kafka_one"
-	Group = "kakfa_group"
+	MAX_MESSAGE_LEN = 2e6 
 )
-// GetConfig Create Kafka sarama config 
-//	@return *sarama.Config 
-func GetConfig() *sarama.Config {
-	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true 
-	log.Println("Creating Kafka config successful")
-	return config 
+
+// mutex 
+var mutex sync.Mutex  
+
+// Count 
+//	@param c 
+//	@param text 
+//	@return int 
+func (ss *ServerImpl) Count(c context.Context, text string) (ans int) {
+	var wg sync.WaitGroup
+
+	log.Println("parsing input text...")
+	sentences := splitByLength(text, MAX_MESSAGE_LEN) 
+	for _, st := range sentences {
+		key := utils.KeyGen(st) 
+		if checkRedis(key) {
+			log.Println("found in redis")
+			return getRedisVal(key)
+		}
+
+		wg.Add(1)
+		go func(key string) {
+			log.Println("asynchronously checking redis...")
+			for {
+				if checkRedis(key) {
+					mutex.Lock()
+					ans += getRedisVal(key)
+					mutex.Unlock()
+					wg.Done()
+					break 
+				}
+				time.Sleep(time.Second)
+			}
+		}(key)
+		log.Printf("sending sentence to channel\n")
+		client.SenderChannel <- st 
+	}
+	wg.Wait() 
+
+	return 
 }
 
-// NewClient Create Kafka sarama client 
-//	@return sarama.Client 
-func NewClient() sarama.Client {
-	client, err := sarama.NewClient([]string{"localhost:9092"}, GetConfig())
+// getRedisVal 
+//	@param key 
+//	@return int 
+func getRedisVal(key string) (cntAll int) {
+	val, err := global.Redis.HGetAll(key).Result() 
 	if err != nil {
-		log.Fatal("Error creating client: ", err)
+		log.Fatal("unable to get key: ", err) 
+		return 0 
 	}
-	log.Printf("Creating client successful\n")
-	return client
+	for _, cnt := range val {
+		cntInt, _ := strconv.Atoi(cnt) 
+		cntAll += cntInt 
+	}
+	return
 }
 
-// GetProducer Create producer. REMEMBER TO CALL producer.Close()
-//	@return sarama.SyncProducer 
-func GetProducer() sarama.SyncProducer {
-	client := NewClient() 
-	producer, err := sarama.NewSyncProducerFromClient(client)
+// checkRedis 
+//	@param key 
+//	@return bool 
+func checkRedis(key string) bool {
+	exist, err := global.Redis.Exists(key).Result() 
 	if err != nil {
-		log.Fatal("Error creating Kafka producer: ", err)
+		log.Fatal("unable to check redis: ", err) 
+		return false 
 	}
-	log.Println("Creating producer successful")
-	return producer
+	if exist > 0 {
+		log.Printf("key exists, key: %s\n", key) 
+		return true 
+	}
+	return false 
 }
 
-// SendMessage send message 
-//	@param line 
-//	@param producer 
-func SendMessage(line string, producer sarama.SyncProducer) {
-	msg := &sarama.ProducerMessage{
-		Value: sarama.StringEncoder(line),
-		Topic: Topic,
-	}
-	_, _, err := producer.SendMessage(msg)
-	if err != nil {
-		log.Fatal("Message send error: ", err)
-	}
-	// log.Printf("Message sent, partition{%v}, offset{%v}\n", partition, offset)
+// splitByLength 
+//	@param s 
+//	@param length 
+//	@return []string 
+func splitByLength(s string, length int) []string {
+    var result []string
+    for i := 0; i < len(s); i += length {
+        end := min(i + length, len(s))
+		for end < len(s) && s[end] != ' ' {
+			end += 1 
+		}
+        result = append(result, s[i : end])
+    }
+    return result
 }

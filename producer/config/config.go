@@ -7,7 +7,7 @@ import (
 
 type AllConfig struct {
 	Server Server
-	Redis Redis 
+	Redis  Redis 
 }
 
 type Server struct {
@@ -15,10 +15,10 @@ type Server struct {
 	Level string
 }
 type Redis struct {
-	Host string 
-	Port string 
+	Host     string 
+	Port     string 
 	Password string 
-	DataBase int `mapstructure:"data_base"` 
+	DataBase int     `mapstructure:"data_base"` 
 }
 
 func ConfigInit() *AllConfig {

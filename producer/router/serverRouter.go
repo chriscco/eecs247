@@ -11,10 +11,10 @@ type ServerRouter struct {
 	service service.ServerImpl 
 }
 func (sr *ServerRouter) ApiRouterInit(router *gin.RouterGroup) {
-	r := router.Group("/") 
+	r := router.Group("") 
 	sr.service = service.NewServerImpl() 
 	serverController := controller.NewServerContrller(sr.service) 
 	{
-		r.GET("/query", serverController.Query) 
+		r.POST("/query", serverController.Query) 
 	}
 }

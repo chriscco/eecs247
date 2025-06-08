@@ -22,10 +22,10 @@ const (
 )
 
 type WordCountRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	RequestMessage string                 `protobuf:"bytes,1,opt,name=RequestMessage,proto3" json:"RequestMessage,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=Message,proto3" json:"Message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *WordCountRequest) Reset() {
@@ -58,9 +58,9 @@ func (*WordCountRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *WordCountRequest) GetRequestMessage() string {
+func (x *WordCountRequest) GetMessage() string {
 	if x != nil {
-		return x.RequestMessage
+		return x.Message
 	}
 	return ""
 }
@@ -68,6 +68,7 @@ func (x *WordCountRequest) GetRequestMessage() string {
 type WordCountResponse struct {
 	state         protoimpl.MessageState               `protogen:"open.v1"`
 	Ct            []*WordCountResponse_WordCountResult `protobuf:"bytes,1,rep,name=ct,proto3" json:"ct,omitempty"`
+	Key           string                               `protobuf:"bytes,2,opt,name=Key,proto3" json:"Key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -107,6 +108,13 @@ func (x *WordCountResponse) GetCt() []*WordCountResponse_WordCountResult {
 		return x.Ct
 	}
 	return nil
+}
+
+func (x *WordCountResponse) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
 }
 
 type WordCountResponse_WordCountResult struct {
@@ -165,16 +173,17 @@ var File_server_proto protoreflect.FileDescriptor
 
 const file_server_proto_rawDesc = "" +
 	"\n" +
-	"\fserver.proto\x12\x05proto\":\n" +
-	"\x10WordCountRequest\x12&\n" +
-	"\x0eRequestMessage\x18\x01 \x01(\tR\x0eRequestMessage\"\x8a\x01\n" +
-	"\x11WordCountResponse\x128\n" +
-	"\x02ct\x18\x01 \x03(\v2(.proto.WordCountResponse.WordCountResultR\x02ct\x1a;\n" +
+	"\fserver.proto\x12\twordCount\",\n" +
+	"\x10WordCountRequest\x12\x18\n" +
+	"\aMessage\x18\x01 \x01(\tR\aMessage\"\xa0\x01\n" +
+	"\x11WordCountResponse\x12<\n" +
+	"\x02ct\x18\x01 \x03(\v2,.wordCount.WordCountResponse.WordCountResultR\x02ct\x12\x10\n" +
+	"\x03Key\x18\x02 \x01(\tR\x03Key\x1a;\n" +
 	"\x0fWordCountResult\x12\x12\n" +
 	"\x04word\x18\x01 \x01(\tR\x04word\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x05R\x05count2M\n" +
-	"\tWordCount\x12@\n" +
-	"\tWordCount\x12\x17.proto.WordCountRequest\x1a\x18.proto.WordCountResponse\"\x00B\tZ\a.;protob\x06proto3"
+	"\x05count\x18\x02 \x01(\x05R\x05count2Y\n" +
+	"\tWordCount\x12L\n" +
+	"\tWordCount\x12\x1b.wordCount.WordCountRequest\x1a\x1c.wordCount.WordCountResponse\"\x00(\x010\x01B\tZ\a.;protob\x06proto3"
 
 var (
 	file_server_proto_rawDescOnce sync.Once
@@ -190,14 +199,14 @@ func file_server_proto_rawDescGZIP() []byte {
 
 var file_server_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_server_proto_goTypes = []any{
-	(*WordCountRequest)(nil),                  // 0: proto.WordCountRequest
-	(*WordCountResponse)(nil),                 // 1: proto.WordCountResponse
-	(*WordCountResponse_WordCountResult)(nil), // 2: proto.WordCountResponse.WordCountResult
+	(*WordCountRequest)(nil),                  // 0: wordCount.WordCountRequest
+	(*WordCountResponse)(nil),                 // 1: wordCount.WordCountResponse
+	(*WordCountResponse_WordCountResult)(nil), // 2: wordCount.WordCountResponse.WordCountResult
 }
 var file_server_proto_depIdxs = []int32{
-	2, // 0: proto.WordCountResponse.ct:type_name -> proto.WordCountResponse.WordCountResult
-	0, // 1: proto.WordCount.WordCount:input_type -> proto.WordCountRequest
-	1, // 2: proto.WordCount.WordCount:output_type -> proto.WordCountResponse
+	2, // 0: wordCount.WordCountResponse.ct:type_name -> wordCount.WordCountResponse.WordCountResult
+	0, // 1: wordCount.WordCount.WordCount:input_type -> wordCount.WordCountRequest
+	1, // 2: wordCount.WordCount.WordCount:output_type -> wordCount.WordCountResponse
 	2, // [2:3] is the sub-list for method output_type
 	1, // [1:2] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

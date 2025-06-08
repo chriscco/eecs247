@@ -1,5 +1,5 @@
 package entity 
 
 type Request struct {
-	message string 
+	Text string `json:"text"`
 }

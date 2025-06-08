@@ -6,5 +6,5 @@ import (
 )
 
 func TestClient(t *testing.T) {
-	client.Client()
+	client.RunClient()
 }

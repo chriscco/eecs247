@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WordCount_WordCount_FullMethodName = "/proto.WordCount/WordCount"
+	WordCount_WordCount_FullMethodName = "/wordCount.WordCount/WordCount"
 )
 
 // WordCountClient is the client API for WordCount service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WordCountClient interface {
-	WordCount(ctx context.Context, in *WordCountRequest, opts ...grpc.CallOption) (*WordCountResponse, error)
+	WordCount(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[WordCountRequest, WordCountResponse], error)
 }
 
 type wordCountClient struct {
@@ -37,21 +37,24 @@ func NewWordCountClient(cc grpc.ClientConnInterface) WordCountClient {
 	return &wordCountClient{cc}
 }
 
-func (c *wordCountClient) WordCount(ctx context.Context, in *WordCountRequest, opts ...grpc.CallOption) (*WordCountResponse, error) {
+func (c *wordCountClient) WordCount(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[WordCountRequest, WordCountResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WordCountResponse)
-	err := c.cc.Invoke(ctx, WordCount_WordCount_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &WordCount_ServiceDesc.Streams[0], WordCount_WordCount_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[WordCountRequest, WordCountResponse]{ClientStream: stream}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WordCount_WordCountClient = grpc.BidiStreamingClient[WordCountRequest, WordCountResponse]
 
 // WordCountServer is the server API for WordCount service.
 // All implementations must embed UnimplementedWordCountServer
 // for forward compatibility.
 type WordCountServer interface {
-	WordCount(context.Context, *WordCountRequest) (*WordCountResponse, error)
+	WordCount(grpc.BidiStreamingServer[WordCountRequest, WordCountResponse]) error
 	mustEmbedUnimplementedWordCountServer()
 }
 
@@ -62,8 +65,8 @@ type WordCountServer interface {
 // pointer dereference when methods are called.
 type UnimplementedWordCountServer struct{}
 
-func (UnimplementedWordCountServer) WordCount(context.Context, *WordCountRequest) (*WordCountResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WordCount not implemented")
+func (UnimplementedWordCountServer) WordCount(grpc.BidiStreamingServer[WordCountRequest, WordCountResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method WordCount not implemented")
 }
 func (UnimplementedWordCountServer) mustEmbedUnimplementedWordCountServer() {}
 func (UnimplementedWordCountServer) testEmbeddedByValue()                   {}
@@ -86,36 +89,27 @@ func RegisterWordCountServer(s grpc.ServiceRegistrar, srv WordCountServer) {
 	s.RegisterService(&WordCount_ServiceDesc, srv)
 }
 
-func _WordCount_WordCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WordCountRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(WordCountServer).WordCount(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: WordCount_WordCount_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WordCountServer).WordCount(ctx, req.(*WordCountRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _WordCount_WordCount_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(WordCountServer).WordCount(&grpc.GenericServerStream[WordCountRequest, WordCountResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type WordCount_WordCountServer = grpc.BidiStreamingServer[WordCountRequest, WordCountResponse]
 
 // WordCount_ServiceDesc is the grpc.ServiceDesc for WordCount service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var WordCount_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.WordCount",
+	ServiceName: "wordCount.WordCount",
 	HandlerType: (*WordCountServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "WordCount",
-			Handler:    _WordCount_WordCount_Handler,
+			StreamName:    "WordCount",
+			Handler:       _WordCount_WordCount_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "server.proto",
 }
